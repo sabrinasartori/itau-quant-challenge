@@ -110,3 +110,16 @@ def load_data(stock, lookback):
     
     return [x_train, y_train, x_test, y_test]
 
+class StockPricesDataset(Dataset):
+    def __init__(self, X, y) -> None:
+        super().__init__()
+
+        self.X = X
+        self.y = y 
+
+    def __len__(self):
+        return self.X
+
+    def __getitem__(self, index):
+        return 
+
