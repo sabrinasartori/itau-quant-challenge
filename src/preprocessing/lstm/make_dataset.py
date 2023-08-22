@@ -3,6 +3,8 @@ import numpy as np
 import torch
 from torch.utils.data.dataset import Dataset
 from typing import List
+from sklearn.preprocessing import MinMaxScaler
+from src.preprocessing.finbert.get_news import read_company_news_df
 
 def generate_tensor_lstm(
     returns_df : pd.DataFrame,
@@ -118,8 +120,65 @@ class StockPricesDataset(Dataset):
         self.y = y 
 
     def __len__(self):
-        return self.X
+        return self.X.shape[0]
 
     def __getitem__(self, index):
-        return 
+        return self.X[index], self.y[index]
+    
+def get_prices_features(prices_df : pd.DataFrame,
+                        ticker : str,
+                        lookback : int = 10,
+                        pct_change : bool = False):
+    
+    prices = prices_df[["Close"]]\
+        .rename(columns={"Close": "price"})
+    
+
+    if pct_change:
+        prices["price"] = prices["price"]\
+            .pct_change()
+    
+    for i in range(1, lookback + 1):
+        prices[f"d-{i}"] = prices\
+            .price\
+            .shift(i)
+            
+    prices.dropna(inplace = True)
+    prices["ticker"] = ticker
+
+    return prices
+
+def normalize_features(prices_df : pd.DataFrame) :
+
+    scaler = MinMaxScaler(feature_range=(-1, 1))
+
+    scaled_prices = scaler\
+        .fit_transform(prices_df)
+
+    scaled_prices_df = pd.DataFrame(
+        scaled_prices,
+        index = prices_df.index, 
+    )\
+        .rename(columns = {
+            0: "price"
+        })
+    
+    return scaled_prices_df
+
+def generate_sentiment_features(ticker : str) -> pd.DataFrame:
+    news_df = read_company_news_df(ticker)
+
+    news_df["date"] = pd.to_datetime(news_df["date"]).dt.date
+
+    news_df["sentiment_count"] = news_df["sentiment"].map({
+        "neutral": 0 ,
+        "positive" : 1,
+        "negative" : -1
+    })
+
+    avg_sentiment = news_df[["sentiment_count", "date"]]\
+        .groupby("date")\
+        .mean()
+    
+    return avg_sentiment
 
