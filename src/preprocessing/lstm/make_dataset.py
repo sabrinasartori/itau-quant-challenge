@@ -142,6 +142,9 @@ def get_prices_features(prices_df : pd.DataFrame,
         prices[f"d-{i}"] = prices\
             .price\
             .shift(i)
+        
+    prices["price"] = prices["price"]\
+        .shift(-1)
             
     prices.dropna(inplace = True)
     prices["ticker"] = ticker
@@ -150,7 +153,7 @@ def get_prices_features(prices_df : pd.DataFrame,
 
 def normalize_features(prices_df : pd.DataFrame) :
 
-    scaler = MinMaxScaler(feature_range=(-1, 1))
+    scaler = MinMaxScaler(feature_range=(1,2))
 
     scaled_prices = scaler\
         .fit_transform(prices_df)
@@ -163,10 +166,18 @@ def normalize_features(prices_df : pd.DataFrame) :
             0: "price"
         })
     
-    return scaled_prices_df
+    return scaler, scaled_prices_df
 
-def generate_sentiment_features(ticker : str) -> pd.DataFrame:
-    news_df = read_company_news_df(ticker)
+def generate_sentiment_features(
+        ticker : str,
+        updated : bool = True
+    ) -> pd.DataFrame:
+    if updated: 
+        news_df = read_company_news_df(
+            ticker + "_updated"
+        )
+    else:
+        news_df = read_company_news_df(ticker)
 
     news_df["date"] = pd.to_datetime(news_df["date"]).dt.date
 
