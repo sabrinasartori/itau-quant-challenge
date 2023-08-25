@@ -26,11 +26,15 @@ def generate_news_df(
     usual_name : str,
     finbert, 
     tokenizer,
+    start_year : int = 2019,
+    end_year : int = 2023,
     save : bool = False
 ):
     
     print(f"Fetching news for {usual_name}...")
-    news, news_complete = get_news(ticker)
+    news, news_complete = get_news(ticker,
+                                   start_year,
+                                   end_year)
     news_with_name = filter_news_with_name(news_complete, usual_name)
     print(f"{len(news_with_name)} news were found related to {ticker} ticker")
 
