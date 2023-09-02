@@ -179,7 +179,9 @@ def generate_sentiment_features(
     else:
         news_df = read_company_news_df(ticker)
 
-    news_df["date"] = pd.to_datetime(news_df["date"]).dt.date
+    news_df["date"] = pd.to_datetime(news_df["date"])
+    news_df["date"] += pd.Timedelta("8h")
+    news_df["date"] = news_df["date"].dt.date
 
     news_df["sentiment_count"] = news_df["sentiment"].map({
         "neutral": 0 ,
