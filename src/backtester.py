@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import norm
 from typing import List
+import yfinance as yf
 
 class Backtester:
     def __init__(self, 
@@ -22,7 +23,7 @@ class Backtester:
                  fees : float = 0,):
         num_trades = {}
 
-        periods = ["train", "test", "val", "full_period"]
+        periods = ["train",  "val", "test", "full_period"]
 
         self.pnls = {}
         self.sharpes = {}
@@ -210,12 +211,35 @@ class Backtester:
     def get_backtest_results(self):
         return pd.DataFrame({
             "sharpes": self.sharpes,
+            "information_ratios" : self.get_information_ratio(),
             "p-values": self.p_values,
             "annualized_vol" : self.stds
-        }).T
+        })
     
     def get_backtest_pnl_by_company(self):
         return self.pnls
     
     def get_backtest_pnl(self):
         return self.pnl_total
+    
+    def get_information_ratio(self):
+        prices_df = yf.download(
+            tickers= "SPG",
+            start="2019-12-30",
+            end="2023-12-30",
+        )
+
+        periods = ["train", "test", "val", "full_period"]
+
+        information_ratios = {}
+
+        for period in periods:
+            pnl_total = self.pnl_total[period]
+
+            returns_idx = prices_df["Close"]\
+                .pct_change()\
+                .reindex(index= pnl_total.index)
+            
+            information_ratios[period] = (pnl_total - returns_idx).mean() / pnl_total.std() * np.sqrt(252)
+
+        return information_ratios
