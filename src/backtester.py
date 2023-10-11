@@ -28,6 +28,7 @@ class Backtester:
         self.sharpes = {}
         self.p_values = {}
         self.pnl_total = {}
+        self.stds = {}
 
         for period in periods:
 
@@ -193,6 +194,7 @@ class Backtester:
             sr = pnl_total.mean() / pnl_total.std()
 
             self.sharpes[period] = sr * np.sqrt(252)
+            self.stds[period] = pnl_total.std()*np.sqrt(252)
 
             gamma_3 = pnl_total.skew()
             gamma_4 = pnl_total.kurtosis()
@@ -206,10 +208,11 @@ class Backtester:
             self.p_values[period] = 1 - psr
 
     def get_backtest_results(self):
-        return {
+        return pd.DataFrame({
             "sharpes": self.sharpes,
             "p-values": self.p_values,
-        }
+            "annualized_vol" : self.stds
+        }).T
     
     def get_backtest_pnl_by_company(self):
         return self.pnls
