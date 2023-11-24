@@ -34,3 +34,5 @@ Our total dataset had news from 2019 to 2023. We splitted the train-validation-t
 * **Test period** January 1st 2023 - August 23rd 2023
 
 Our main metrics were sharpe ratio and p-value (Probabilistic sharpe-ratio). 
+
+To compute information ratio, the selected benchmark was the american technoly index, S&P North American Technology Sector Index (SPGSTI).
