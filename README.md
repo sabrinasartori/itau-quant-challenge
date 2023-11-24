@@ -12,7 +12,7 @@ The primary aim of this competition was to develop a quantitative investment str
 
 Our devised strategy involved utilizing news data to engage in trading activities (long or short positions) within a selection of five tech giants (Apple, Google, Meta, Amazon, and Microsoft).
 
-News data where processed with a pre-trained language model (BERT) and then inputted wth past prices to forecast the next closing prices
+News data were processed with a pre-trained language model (BERT) and then inputted wth past prices to forecast the next closing prices
 
 ## :chart_with_upwards_trend: Results
 
